@@ -6,8 +6,9 @@ https://www.kaggle.com/datasets/radheshyamkollipara/bank-customer-churn
 
 https://www.kaggle.com/datasets/anwarsan/credit-card-bank-churn?rvi=1
 
+https://www.kaggle.com/datasets/k123vinod/insurance-churn-prediction-weekend-hackathon
+
 https://www.kaggle.com/datasets/ankitverma2010/ecommerce-customer-churn-analysis-and-prediction?rvi=1
 
 https://www.kaggle.com/datasets/zsinghrahulk/sunborn-customer-churn
 
-https://www.kaggle.com/datasets/k123vinod/insurance-churn-prediction-weekend-hackathon

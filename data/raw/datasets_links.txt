@@ -1,0 +1,7 @@
+https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset
+https://www.kaggle.com/datasets/raumonsa11/churn-telco-europa
+https://www.kaggle.com/datasets/andieminogue/newspaper-churn
+https://www.kaggle.com/datasets/radheshyamkollipara/bank-customer-churn
+
+
+https://www.kaggle.com/datasets/hassaneskikri/online-retail-customer-churn-dataset
