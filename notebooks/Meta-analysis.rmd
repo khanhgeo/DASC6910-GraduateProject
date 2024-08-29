@@ -1,0 +1,116 @@
+---
+title: "Meta-analysis"
+author: "KhanhTran"
+date: "2024-06-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Load the metafor package
+library(metafor)
+
+# Manually inputting the data from the image into a dataframe
+data <- data.frame(
+  model = c("AdaBoost", "Bagging", "Catboost", "Decision Tree", "GaussianNB", "Gradient Boosting",
+            "KNeighbors", "Lightgbm", "Logistic Regression", "MLP", "Random Forest", "XGboost"),
+  mean = c(0.883636364, 0.868181818, 0.903636364, 0.760909091, 0.788181818, 0.893636364,
+           0.784545455, 0.9, 0.834545455, 0.874545455, 0.889090909, 0.891818182),
+  sd = c(0.080780286, 0.096417652, 0.083579032, 0.129108834, 0.070826292, 0.079406892,
+         0.108477061, 0.086023253, 0.085949245, 0.092883113, 0.088369061, 0.092284146),
+  se = c(0.024356173, 0.029071016, 0.025200026, 0.038927778, 0.021354931, 0.023942079,
+         0.032707064, 0.025936987, 0.025914672, 0.028005312, 0.026644274, 0.027824717)
+)
+
+# Calculate variances from the standard errors
+data$vi <- data$se^2
+
+# Calculate the 95% confidence intervals
+data$ci.lb <- data$mean - 1.96 * data$se
+data$ci.ub <- data$mean + 1.96 * data$se
+
+# Sort the data by the mean effect size
+
+data <- data[order(data$mean, decreasing = TRUE),]
+
+# Print the dataframe to check the content
+print(data)
+```
+
+
+```{r}
+# Meta-analysis using random-effects model
+random_effects <- rma(yi = mean, sei = se, data = data, method = "REML")
+
+# Meta-analysis using fixed-effects model
+fixed_effects <- rma(yi = mean, sei = se, data = data, method = "FE")
+
+# Plotting the forest plots
+par(mfrow = c(1, 1))  # Setting up the plot area to have 2 rows and 1 column
+
+# Random Effects Model Forest Plot
+forest(random_effects, slab = data$model, main = "Random-Effects Model Forest Plot", xlab = "AUC")
+
+# Fixed Effects Model Forest Plot
+forest(fixed_effects, slab = data$model, main = "Fixed-Effects Model Forest Plot", xlab = "AUC")
+
+```
+
+```{r}
+meta::forest(random_effects, 
+             prediction = TRUE, 
+             print.tau2 = FALSE,
+             leftlabs = c("model", "mean", "se"))
+```
+
+```{r}
+random_effects$
+```
+
+```{r}
+# Manually inputting the data from the image into a dataframe
+data <- data.frame(
+  dataset = c("Telcom", "Internet", "Bank", "Credit Card", "E-Commerce", "Employee", 
+              "Telco Europa", "Cell2Cell", "Membership", "SA Wireless Telcom", "Niger Telcom"),
+  mean = c(0.904166667, 0.950833333, 0.824166667, 0.951666667, 0.946666667, 0.8125, 
+           0.894166667, 0.816666667, 0.67, 0.8, 0.845833333),
+  sd = c(0.047569726, 0.045618643, 0.056962242, 0.049144191, 0.055650424, 0.088536074,
+         0.076331613, 0.058672176, 0.041341153, 0.064385204, 0.079938423),
+  se = c(0.013732197, 0.013168968, 0.016443583, 0.014186706, 0.016064894, 0.025558163,
+         0.022035039, 0.016937198, 0.011934163, 0.018586408, 0.023076235)
+)
+
+# Calculate variances from the standard errors
+data$vi <- data$se^2
+
+# Calculate the 95% confidence intervals
+data$ci.lb <- data$mean - 1.96 * data$se
+data$ci.ub <- data$mean + 1.96 * data$se
+
+# Sort the data by the mean effect size
+
+data <- data[order(data$mean, decreasing = TRUE),]
+
+# Print the dataframe to check the content
+print(data)
+```
+```{r}
+# Meta-analysis using random-effects model
+random_effects <- rma(yi = mean, sei = se, data = data, method = "REML")
+
+# Meta-analysis using fixed-effects model
+fixed_effects <- rma(yi = mean, sei = se, data = data, method = "FE")
+
+# Plotting the forest plots
+par(mfrow = c(1, 1))  # Setting up the plot area to have 2 rows and 1 column
+
+# Random Effects Model Forest Plot
+forest(random_effects, slab = data$dataset, main = "Random-Effects Model Forest Plot", xlab = "AUC")
+
+# Fixed Effects Model Forest Plot
+  forest(fixed_effects, slab = data$dataset, main = "Fixed-Effects Model Forest Plot", xlab = "AUC")
+```
+
