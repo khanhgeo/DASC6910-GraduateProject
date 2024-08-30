@@ -9,10 +9,22 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-# Load the metafor package
-library(metafor)
 
+
+```{r}
+# Load the metafor, meta package
+library(metafor)
+library(meta)
+```
+
+
+
+
+## Using Metafor Package
+
+### By ML model
+
+```{r}
 # Manually inputting the data from the image into a dataframe
 data <- data.frame(
   model = c("AdaBoost", "Bagging", "Catboost", "Decision Tree", "GaussianNB", "Gradient Boosting",
@@ -58,17 +70,16 @@ forest(random_effects, slab = data$model, main = "Random-Effects Model Forest Pl
 forest(fixed_effects, slab = data$model, main = "Fixed-Effects Model Forest Plot", xlab = "AUC")
 
 ```
-
 ```{r}
-meta::forest(random_effects, 
-             prediction = TRUE, 
-             print.tau2 = FALSE,
-             leftlabs = c("model", "mean", "se"))
+fixed_effects
 ```
 
+
 ```{r}
-random_effects$
+random_effects
 ```
+
+### By Dataset
 
 ```{r}
 # Manually inputting the data from the image into a dataframe
@@ -113,4 +124,251 @@ forest(random_effects, slab = data$dataset, main = "Random-Effects Model Forest 
 # Fixed Effects Model Forest Plot
   forest(fixed_effects, slab = data$dataset, main = "Fixed-Effects Model Forest Plot", xlab = "AUC")
 ```
+```{r}
+fixed_effects
+```
+
+```{r}
+random_effects
+```
+
+
+
+
+## Using Meta Package
+
+### By ML models
+
+
+```{r}
+
+# Create the dataframe
+data <- data.frame(
+  model = c("AdaBoost", "Bagging", "Catboost", "Decision Tree", "GaussianNB", "Gradient Boosting",
+            "KNeighbors", "Lightgbm", "Logistic Regression", "MLP", "Random Forest", "XGboost"),
+  mean = c(0.883636364, 0.868181818, 0.903636364, 0.760909091, 0.788181818, 0.893636364,
+           0.784545455, 0.9, 0.834545455, 0.874545455, 0.889090909, 0.891818182),
+  se = c(0.024356173, 0.029071016, 0.025200026, 0.038927778, 0.021354931, 0.023942079,
+         0.032707064, 0.025936987, 0.025914672, 0.028005312, 0.026644274, 0.027824717)
+)
+
+# Create meta-analysis objects
+meta_fixed <- metagen(TE = data$mean, seTE = data$se, studlab = data$model, comb.fixed = TRUE, comb.random = FALSE)
+meta_random <- metagen(TE = data$mean, seTE = data$se, studlab = data$model, comb.fixed = FALSE, comb.random = TRUE)
+
+# Plot the forest plot for the fixed-effects model
+meta::forest(meta_fixed, 
+             xlab = "Mean AUC",
+             leftlabs = c("Model", "Mean AUC", "Standard Error"),
+             rightlabs = c("Weight (%)"),  # Add a label for weights
+             print.tau2 = FALSE,           # Do not print tau²
+             print.I2 = FALSE,             # Do not print I²
+             print.Q = FALSE,              # Do not print Q-statistic
+             # smlab = "Pooled Effect (Fixed)",  # Label for pooled effect
+             addrow.overall = TRUE,        # Include overall effect row
+             colgap.forest.left = "5mm",   # Adjust gap for clarity
+             colgap.forest.right = "5mm",  # Adjust gap for clarity
+             digits.weight = 2,            # Display weights with two decimal places
+             weight.study = "fixed",       # Display weights for fixed-effects model
+             fontsize = 8, spacing = 1,
+             xlim = c(0.5, 1),
+             sortvar = TE)
+
+# Plot the forest plot for the random-effects model
+meta::forest(meta_random, 
+             xlab = "Mean AUC",
+             leftlabs = c("Model", "Mean AUC", "Standard Error"),
+             rightlabs = c("Weight (%)"),  # Add a label for weights
+             print.tau2 = FALSE,           # Do not print tau²
+             print.I2 = FALSE,             # Do not print I²
+             print.Q = FALSE,              # Do not print Q-statistic
+             addrow.overall = TRUE,        # Include overall effect row
+             colgap.forest.left = "5mm",   # Adjust gap for clarity
+             colgap.forest.right = "5mm",  # Adjust gap for clarity
+             digits.weight = 2,            # Display weights with two decimal places
+             weight.study = "random",      # Display weights for random-effects model
+             fontsize = 8, spacing = 1,
+             xlim = c(0.5, 1),
+             sortvar = TE)
+
+```
+
+
+```{r}
+# Produce funnel plot
+meta::funnel(meta_fixed,
+             xlim = c(0.6, 1),
+             ylab = "",
+             studlab = TRUE,
+             cex = 1)
+# Add x-axis label using mtext
+mtext("Mean AUC", side = 1, line = 2.5, cex = 1.3)
+# Add custom y-axis label using mtext
+mtext("Standard Error", side = 2, line = 3, cex = 1.3)
+
+# Produce funnel plot
+meta::funnel(meta_random,
+             xlim = c(0.6, 1),
+             ylab = "",
+             studlab = TRUE,
+             cex = 1)
+
+# Add x-axis label using mtext
+mtext("Mean AUC", side = 1, line = 2.5, cex = 1.3)
+# Add custom y-axis label using mtext
+mtext("Standard Error", side = 2, line = 3, cex = 1.3)
+```
+
+```{r}
+# Save Random Effects Model Forest Plot as PNG
+png(filename = "C:/KhanhTV5/GitHub/Repos/DASC6910-GraduateProject/report/figures/randomEffectModelFunnelPlotByML.png", width = 800, height = 600)
+# Produce funnel plot
+meta::funnel(meta_random,
+             xlim = c(0.6, 1),
+             ylab = "",
+             studlab = TRUE,
+             cex = 1)
+
+# Add x-axis label using mtext
+mtext("Mean AUC", side = 1, line = 2.5, cex = 1.3)
+# Add custom y-axis label using mtext
+mtext("Standard Error", side = 2, line = 3, cex = 1.3)
+
+dev.off()
+
+
+# Save Fixed Effects Model Forest Plot as PNG
+png(filename = "C:/KhanhTV5/GitHub/Repos/DASC6910-GraduateProject/report/figures/fixedEffectModelFunnelPlotByML.png", width = 800, height = 600)
+# Produce funnel plot
+meta::funnel(meta_fixed,
+             xlim = c(0.6, 1),
+             ylab = "",
+             studlab = TRUE,
+             cex = 1)
+# Add x-axis label using mtext
+mtext("Mean AUC", side = 1, line = 2.5, cex = 1.3)
+# Add custom y-axis label using mtext
+mtext("Standard Error", side = 2, line = 3, cex = 1.3)
+
+dev.off()
+```
+
+
+### By Dataset
+
+```{r}
+# Create the dataframe
+data <- data.frame(
+  dataset = c("Telcom", "Internet", "Bank", "Credit Card", "E-Commerce", "Employee", 
+              "Telco Europa", "Cell2Cell", "Membership", "SA Wireless Telcom", "Niger Telcom"),
+  mean = c(0.904166667, 0.950833333, 0.824166667, 0.951666667, 0.946666667, 0.8125, 
+           0.894166667, 0.816666667, 0.67, 0.8, 0.845833333),
+  sd = c(0.047569726, 0.045618643, 0.056962242, 0.049144191, 0.055650424, 0.088536074,
+         0.076331613, 0.058672176, 0.041341153, 0.064385204, 0.079938423),
+  se = c(0.013732197, 0.013168968, 0.016443583, 0.014186706, 0.016064894, 0.025558163,
+         0.022035039, 0.016937198, 0.011934163, 0.018586408, 0.023076235)
+)
+
+# Create meta-analysis objects
+meta_fixed <- metagen(TE = data$mean, seTE = data$se, studlab = data$dataset, comb.fixed = TRUE, comb.random = FALSE)
+meta_random <- metagen(TE = data$mean, seTE = data$se, studlab = data$dataset, comb.fixed = FALSE, comb.random = TRUE)
+
+# Plot the forest plot for the fixed-effects model
+meta::forest(meta_fixed, 
+             xlab = "Mean AUC",
+             leftlabs = c("Model", "Mean AUC", "Standard Error"),
+             rightlabs = c("Weight (%)"),  # Add a label for weights
+             print.tau2 = FALSE,           # Do not print tau²
+             print.I2 = FALSE,             # Do not print I²
+             print.Q = FALSE,              # Do not print Q-statistic
+             # smlab = "Pooled Effect (Fixed)",  # Label for pooled effect
+             addrow.overall = TRUE,        # Include overall effect row
+             colgap.forest.left = "5mm",   # Adjust gap for clarity
+             colgap.forest.right = "5mm",  # Adjust gap for clarity
+             digits.weight = 2,            # Display weights with two decimal places
+             weight.study = "fixed",       # Display weights for fixed-effects model
+             fontsize = 8, spacing = 1,
+             xlim = c(0.5, 1),
+             sortvar = TE)
+
+# Plot the forest plot for the random-effects model
+meta::forest(meta_random, 
+             xlab = "Mean AUC",
+             leftlabs = c("Model", "Mean AUC", "Standard Error"),
+             rightlabs = c("Weight (%)"),  # Add a label for weights
+             print.tau2 = FALSE,           # Do not print tau²
+             print.I2 = FALSE,             # Do not print I²
+             print.Q = FALSE,              # Do not print Q-statistic
+             addrow.overall = TRUE,        # Include overall effect row
+             colgap.forest.left = "5mm",   # Adjust gap for clarity
+             colgap.forest.right = "5mm",  # Adjust gap for clarity
+             digits.weight = 2,            # Display weights with two decimal places
+             weight.study = "random",      # Display weights for random-effects model
+             fontsize = 8, spacing = 1,
+             xlim = c(0.5, 1),
+             sortvar = TE)
+```
+
+
+
+
+```{r}
+# Produce funnel plot
+meta::funnel(meta_fixed,
+             xlim = c(0.6, 1),
+             ylab = "",
+             studlab = TRUE,
+             cex = 1)
+# Add x-axis label using mtext
+mtext("Mean AUC", side = 1, line = 2.5, cex = 1.3)
+# Add custom y-axis label using mtext
+mtext("Standard Error", side = 2, line = 3, cex = 1.3)
+
+# Produce funnel plot
+meta::funnel(meta_random,
+             xlim = c(0.6, 1),
+             ylab = "",
+             studlab = TRUE,
+             cex = 1)
+
+# Add x-axis label using mtext
+mtext("Mean AUC", side = 1, line = 2.5, cex = 1.3)
+# Add custom y-axis label using mtext
+mtext("Standard Error", side = 2, line = 3, cex = 1.3)
+```
+```{r}
+# Save Random Effects Model Forest Plot as PNG
+png(filename = "C:/KhanhTV5/GitHub/Repos/DASC6910-GraduateProject/report/figures/randomEffectModelFunnelPlotByDataset.png", width = 800, height = 600)
+# Produce funnel plot
+meta::funnel(meta_random,
+             xlim = c(0.6, 1),
+             ylab = "",
+             studlab = TRUE,
+             cex = 1)
+
+# Add x-axis label using mtext
+mtext("Mean AUC", side = 1, line = 2.5, cex = 1.3)
+# Add custom y-axis label using mtext
+mtext("Standard Error", side = 2, line = 3, cex = 1.3)
+
+dev.off()
+
+
+# Save Fixed Effects Model Forest Plot as PNG
+png(filename = "C:/KhanhTV5/GitHub/Repos/DASC6910-GraduateProject/report/figures/fixedEffectModelFunnelPlotByDataset.png", width = 800, height = 600)
+
+# Produce funnel plot
+meta::funnel(meta_fixed,
+             xlim = c(0.6, 1),
+             ylab = "",
+             studlab = TRUE,
+             cex = 1)
+# Add x-axis label using mtext
+mtext("Mean AUC", side = 1, line = 2.5, cex = 1.3)
+# Add custom y-axis label using mtext
+mtext("Standard Error", side = 2, line = 3, cex = 1.3)
+
+dev.off()
+```
+
 
